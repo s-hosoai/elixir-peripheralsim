@@ -2,16 +2,21 @@ import { Color } from 'csstype';
 import { Socket } from 'phoenix';
 import * as React from 'react';
 
+import LED from '../components/LED';
 import Main from '../components/Main';
 
 // Interface for the Counter component state
 interface CounterState {
     // currentCount: number
     ledColor: Color
+    ledState1: Boolean
+    ledState2: Boolean
+    ledState3: Boolean
+    ledState4: Boolean
     ws: any
 }
 
-const initialState = { ledColor: "grey", ws: null }
+const initialState = { ledColor: "grey", ledState1: false, ledState2: false, ledState3: false, ledState4: false, ws: null }
 
 export default class FilePage extends React.Component<{}, CounterState> {
     constructor(props: {}) {
@@ -28,14 +33,13 @@ export default class FilePage extends React.Component<{}, CounterState> {
         channel.join()
             .receive("ok", resp => { })
 
-        channel.on("lines", resp => {
-            if (this.state.ledColor == "grey") {
-                this.setState({ ledColor: "red" })
-            } else if (this.state.ledColor == "red") {
-                this.setState({ ledColor: "blue" })
+        channel.on("data", resp => {
+            if (resp.data.charCodeAt().toString(2) == "1") {
+                this.setState({ ledState1: true })
             } else {
-                this.setState({ ledColor: "grey" })
+                this.setState({ ledState1: false })
             }
+            console.log(resp.data.charCodeAt().toString(2))
         })
         this.setState({ ws: channel })
     }
@@ -43,9 +47,10 @@ export default class FilePage extends React.Component<{}, CounterState> {
     public render(): JSX.Element {
         return (
             <Main>
-                <svg>
-                    <circle cx="10" cy="10" r="10" fill={this.state.ledColor}></circle>
-                </svg>
+                <LED led={this.state.ledState1} />
+                <LED led={this.state.ledState2} />
+                <LED led={this.state.ledState3} />
+                <LED led={this.state.ledState4} />
                 <button onClick={this.push}></button>
             </Main>
         )
