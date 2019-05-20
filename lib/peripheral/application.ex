@@ -11,8 +11,8 @@ defmodule Peripheral.Application do
       # Start the endpoint when the application starts
       PeripheralWeb.Endpoint,
       # Starts a worker by calling: Peripheral.Worker.start_link(arg)
-      {Peripheral.FileObserver, ["data/sample.txt"]}
-      #       ["C:/Users/hosoai/Desktop/elixir/peripheral/assets/data/sample.txt"]}
+      {Peripheral.FileObserver, ["../../athrill/athrill/sample/os/asp3/OBJ/mmap.bin"]}
+      # {Peripheral.FileObserver, ["data/sample.txt"]}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

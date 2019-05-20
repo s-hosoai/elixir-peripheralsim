@@ -9,32 +9,26 @@ defmodule Peripheral.FileObserver do
 
   def init({file}) do
     Logger.info("Observer init")
-    stream = File.stream!(file)
     GenServer.cast(self, :check)
-    {:ok, {stream, nil}}
+    {:ok, {file, nil}}
   end
 
-  def handle_cast(:check, {stream, last_modified}) do
-    last_modified = check_file(stream, last_modified)
-    :timer.sleep(1000)
+  def handle_cast(:check, {file, file_data}) do
+    file_data = check_file(file, file_data)
+    :timer.sleep(100)
     GenServer.cast(self, :check)
-    {:noreply, {stream, last_modified}}
+    {:noreply, {file, file_data}}
   end
 
-  def check_file(stream, last_modified) do
-    cond do
-      !File.exists?(stream.path) ->
-        Logger.error("Observer not exists")
-        last_modified
+  def check_file(file, prev_data) do
+    new_data = File.read!(file)
 
-      File.stat!(stream.path).mtime == last_modified ->
-        last_modified
-
-      true ->
-        lines = stream |> Enum.into([])
-        PeripheralWeb.Endpoint.broadcast!("file:update", "lines", %{lines: lines})
-        Logger.info("Observer file changed")
-        File.stat!(stream.path).mtime
+    if new_data != prev_data do
+      PeripheralWeb.Endpoint.broadcast!("file:update", "data", %{data: new_data})
+      Logger.info("Observer file changed")
+      new_data
+    else
+      prev_data
     end
   end
 end
