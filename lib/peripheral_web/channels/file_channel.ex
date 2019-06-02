@@ -10,8 +10,8 @@ defmodule Peripheral.FileChannel do
     {:error, %{reason: "unauthorized"}}
   end
 
-  def handle_in("button", payload, socket) do
-    Logger.info("message from browser")
+  def handle_in("updateBit", %{"address" => address, "bit" => bit, "value" => value}, socket) do
+    Peripheral.FileObserver.update(address, bit, value)
     {:noreply, socket}
   end
 end
